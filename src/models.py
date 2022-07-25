@@ -8,28 +8,36 @@ from eralchemy import render_er
 
 Base = declarative_base()
 
-class Person(Base):
-    __tablename__ = 'person'
-    # Here we define columns for the table person
-    # Notice that each column is also a normal Python instance attribute.
+class User(Base):
+    __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
+    username = Column(String(250), nullable=False)
+    email = Column(String(100), unique=True, nullable=False)
 
-class Address(Base):
-    __tablename__ = 'address'
-    # Here we define columns for the table address.
-    # Notice that each column is also a normal Python instance attribute.
+class Follower(Base):
+    __tablename__ = 'followers'
+    user_from_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+    user_to_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+
+class Post(Base):
+    __tablename__ = 'posts'
     id = Column(Integer, primary_key=True)
-    street_name = Column(String(250))
-    street_number = Column(String(250))
-    post_code = Column(String(250), nullable=False)
-    person_id = Column(Integer, ForeignKey('person.id'))
-    person = relationship(Person)
+    user_id = Column(Integer, ForeignKey('users.id'))
+    photo = Column(String(250), nullable=False)
+    text = Column(String(250))
+    likes = Column(Integer)
 
-    def to_dict(self):
-        return {}
+class Liked(Base):
+    __tablename__ = 'liked_posts'
+    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+    post_id = Column(Integer, ForeignKey('posts.id'), primary_key=True)
 
-## Draw from SQLAlchemy base
+class Comment(Base):
+    __tablename__ = 'comments'
+    user_id = Column(Integer, ForeignKey('users.id'), primary_key=True)
+    post_id = Column(Integer, ForeignKey('posts.id'), primary_key=True)
+    text = Column(String(250))
+    
 try:
     result = render_er(Base, 'diagram.png')
     print("Success! Check the diagram.png file")
